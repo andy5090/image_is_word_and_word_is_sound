@@ -125,7 +125,15 @@ function draw() {
         } else {
           fill(0);
         }
-        rect(sKey.posX - 25, sKey.posY - rectYOffset, 50, 50, 5);
+        strokeWeight(1);
+        rect(sKey.posX - 25, sKey.posY - rectYOffset, 50, 50, 5);       
+         
+        if(i == sKey.playStep) {          
+          stroke(255);          
+          strokeWeight(4);  
+          noFill(0);
+          rect(sKey.posX - 30, sKey.posY - rectYOffset - 5, 60, 60, 5);
+        }
         rectYOffset += 60;
       }
     });
@@ -175,14 +183,10 @@ function keyPressed() {
       keyword.map(sKey => {
         sKey.soundStop();
       });
-      keyword = [];
+      keyword.length = 0;
       keyIndex = 0;
       transHeight = (height / 5) * 3;
       transRate = 1;
     }
   }
-}
-
-function mouseClicked() {
-  getAudioContext().resume();
 }
