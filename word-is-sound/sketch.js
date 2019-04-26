@@ -1,9 +1,7 @@
-let osc, fft;
-
 let keyword;
 let keyIndex;
 
-let inSoundProc;
+let isSoundOFF;
 let transitionStep;
 
 const speedOffsetY = 3;
@@ -17,17 +15,11 @@ function setup() {
 
   keyword = [];
   keyIndex = 0;
-  inSoundProc = false;
+  isSoundON = false;
   transitionStep = 0;
 
   transHeight = (height / 5) * 3;
   transRate = 1;
-
-  // osc = new p5.Oscillator(); // set frequency and type
-  // osc.amp(0.5);
-
-  // fft = new p5.FFT();
-  // osc.start();
 }
 
 class SingleKey {
@@ -40,16 +32,42 @@ class SingleKey {
       .charCodeAt(0)
       .toString(2)
       .split("");
+    this.osc = null;
+    this.interval = null;
+    this.playStep = 0;
   }
 
-  posChange = (posX, posY) => {
+  soundInit() {
+    this.osc = new p5.Oscillator();
+    this.osc.freq(this.key.charCodeAt(0) * 10);
+  }
+
+  soundStart() {
+    this.osc.start();
+    this.interval = setInterval(() => {
+      const step = this.playStep;
+      if (this.bitKey[step] === "1") {
+        this.osc.amp(0.1);
+      } else {
+        this.osc.amp(0);
+      }
+      this.playStep = (step + 1) % 8;
+    }, 800);
+  }
+
+  soundStop() {
+    clearInterval(this.interval);
+    this.osc.stop();
+  }
+
+  posChange(posX, posY) {
     this.posX = posX;
     this.posY = posY;
-  };
+  }
 
-  bitKeyUpdate = bitKey => {
+  bitKeyUpdate(bitKey) {
     this.bitKey = bitKey;
-  };
+  }
 }
 
 function draw() {
@@ -82,12 +100,15 @@ function draw() {
 
     if (transHeight < height - 70) {
       transHeight = transHeight + speedOffsetY;
+      if (transRate > 0) {
+        transRate = transRate - speedOffsetX;
+      }
     } else {
       transitionStep = 2;
-    }
 
-    if (transRate > 0) {
-      transRate = transRate - speedOffsetX;
+      keyword.map(sKey => {
+        sKey.soundStart();
+      });
     }
   } else if (transitionStep === 2) {
     keyword.map((sKey, index) => {
@@ -109,13 +130,6 @@ function draw() {
       }
     });
   }
-
-  // change oscillator frequency based on mouseX
-  // let freq = map(mouseX, 0, width, 40, 880);
-  // osc.freq(freq);
-
-  // let amp = map(mouseY, 0, height, 1, 0.01);
-  // osc.amp(amp);
 }
 
 function keyPressed() {
@@ -139,6 +153,7 @@ function keyPressed() {
         }
 
         sKey.bitKeyUpdate(tempBits);
+        sKey.soundInit();
       });
     } else if (keyCode === ESCAPE) {
       keyword = [];
@@ -157,6 +172,9 @@ function keyPressed() {
   } else if (transitionStep === 2) {
     if (keyCode === ESCAPE) {
       transitionStep = 0;
+      keyword.map(sKey => {
+        sKey.soundStop();
+      });
       keyword = [];
       keyIndex = 0;
       transHeight = (height / 5) * 3;
