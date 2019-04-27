@@ -10,8 +10,10 @@ const speedOffsetX = 0.013;
 let transHeight;
 let transRate;
 
+let reverb;
+
 function setup() {
-  createCanvas(windowWidth, windowHeight - 4);
+  createCanvas(windowWidth, windowHeight - 5);
 
   keyword = [];
   keyIndex = 0;
@@ -20,6 +22,8 @@ function setup() {
 
   transHeight = (height / 5) * 3;
   transRate = 1;
+
+  reverb = new p5.Reverb();
 }
 
 class SingleKey {
@@ -32,27 +36,66 @@ class SingleKey {
       .charCodeAt(0)
       .toString(2)
       .split("");
-    this.osc = null;
+    this.osc = new p5.Oscillator();;
     this.interval = null;
     this.playStep = 0;
   }
 
   soundInit() {
-    this.osc = new p5.Oscillator();
-    this.osc.freq(this.key.charCodeAt(0) * 10);
+    let waveFreq = this.key.charCodeAt(0) * (this.index % 6 + 7);  
+    let reverbDecay = 3;  
+    switch(waveFreq % 7) {
+      case 0:
+      this.osc.setType('sine');
+      break;
+      case 1:
+      this.osc.setType('triangle');
+      waveFreq = waveFreq / 2;
+      reverbDecay = 1;
+      break;
+      case 3:
+      this.osc.setType('sine');
+      break;
+      case 4:
+      this.osc.setType('sawtooth');
+      waveFreq = waveFreq / 3;
+      reverbDecay = 2;
+      break;
+      case 5:
+      this.osc.setType('sine');
+      break;
+      case 6:
+      this.osc.setType('square');
+      waveFreq = waveFreq / 3 * 2;
+      reverbDecay = 2;
+      break;
+    }    
+    this.osc.freq(waveFreq);
+    this.osc.amp(0);
+    this.osc.start();
+    reverb.process(this.osc, 3, reverbDecay);
   }
 
-  soundStart() {
-    this.osc.start();
+  soundStart(totalKeys) {
+    const stepTime = this.key.charCodeAt(0) * (this.index % 6 + 7);  
+    const singleAmp = 0.3 / totalKeys;
+    if (this.bitKey[this.playStep] === "1") {
+      this.osc.amp(singleAmp);
+    } else {
+      this.osc.amp(0);
+    }    
     this.interval = setInterval(() => {
-      const step = this.playStep;
-      if (this.bitKey[step] === "1") {
-        this.osc.amp(0.1);
+      this.playStep++;
+      if(this.playStep === 8) {
+        this.playStep = 0;
+        this.bitKeyInvert();
+      }
+      if (this.bitKey[this.playStep] === "1") {
+        this.osc.amp(singleAmp);
       } else {
         this.osc.amp(0);
       }
-      this.playStep = (step + 1) % 8;
-    }, 800);
+    }, stepTime);    
   }
 
   soundStop() {
@@ -67,6 +110,18 @@ class SingleKey {
 
   bitKeyUpdate(bitKey) {
     this.bitKey = bitKey;
+  }
+
+  bitKeyInvert() {
+    let tempKey = [];
+    this.bitKey.map(bit => {
+      if(bit === "1") {
+        tempKey.push("0");
+      } else {
+        tempKey.push("1");
+      }
+    });
+    this.bitKeyUpdate(tempKey);
   }
 }
 
@@ -107,7 +162,8 @@ function draw() {
       transitionStep = 2;
 
       keyword.map(sKey => {
-        sKey.soundStart();
+        sKey.soundInit();
+        sKey.soundStart(keyIndex);
       });
     }
   } else if (transitionStep === 2) {
@@ -127,7 +183,7 @@ function draw() {
         }
         strokeWeight(1);
         rect(sKey.posX - 25, sKey.posY - rectYOffset, 50, 50, 5);       
-         
+        console.log(i, sKey.playStep);
         if(i == sKey.playStep) {          
           stroke(255);          
           strokeWeight(4);  
@@ -160,8 +216,7 @@ function keyPressed() {
           tempBits.push(firstBit);
         }
 
-        sKey.bitKeyUpdate(tempBits);
-        sKey.soundInit();
+        sKey.bitKeyUpdate(tempBits);        
       });
     } else if (keyCode === ESCAPE) {
       keyword = [];
