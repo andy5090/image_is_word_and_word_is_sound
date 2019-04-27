@@ -50,7 +50,7 @@ class SingleKey {
       break;
       case 1:
       this.osc.setType('triangle');
-      waveFreq = waveFreq / 2;
+      waveFreq = waveFreq / 4;
       reverbDecay = 1;
       break;
       case 3:
@@ -58,7 +58,7 @@ class SingleKey {
       break;
       case 4:
       this.osc.setType('sawtooth');
-      waveFreq = waveFreq / 3;
+      waveFreq = waveFreq / 5;
       reverbDecay = 2;
       break;
       case 5:
@@ -66,14 +66,14 @@ class SingleKey {
       break;
       case 6:
       this.osc.setType('square');
-      waveFreq = waveFreq / 3 * 2;
+      waveFreq = waveFreq / 3;
       reverbDecay = 2;
       break;
     }    
     this.osc.freq(waveFreq);
     this.osc.amp(0);
     this.osc.start();
-    reverb.process(this.osc, 3, reverbDecay);
+    reverb.process(this.osc, 4, reverbDecay);
   }
 
   soundStart(totalKeys) {
