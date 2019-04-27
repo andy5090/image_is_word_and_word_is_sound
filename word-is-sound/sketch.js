@@ -49,24 +49,26 @@ class SingleKey {
       this.osc.setType('sine');
       break;
       case 1:
-      this.osc.setType('triangle');
-      waveFreq = waveFreq / 4;
-      reverbDecay = 1;
+      this.osc.setType('square');
+      waveFreq = waveFreq / 5;
+      reverbDecay = 2;
       break;
       case 3:
       this.osc.setType('sine');
+      waveFreq = waveFreq / 3;
+      reverbDecay = 2;
       break;
       case 4:
       this.osc.setType('sawtooth');
-      waveFreq = waveFreq / 5;
-      reverbDecay = 2;
+      waveFreq = waveFreq / 6;
+      reverbDecay = 1;
       break;
       case 5:
       this.osc.setType('sine');
       break;
       case 6:
-      this.osc.setType('square');
-      waveFreq = waveFreq / 3;
+      this.osc.setType('sine');
+      waveFreq = waveFreq / 4;
       reverbDecay = 2;
       break;
     }    
