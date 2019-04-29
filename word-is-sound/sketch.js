@@ -1,6 +1,8 @@
 let keyword;
 let keyIndex;
 
+let bitBoxSize;
+
 let isSoundOFF;
 let transitionStep;
 
@@ -22,6 +24,8 @@ function setup() {
 
   transHeight = (height / 5) * 3;
   transRate = 1;
+
+  bitBoxSize = height / 14;
 
   reverb = new p5.Reverb();
 }
@@ -155,7 +159,7 @@ function draw() {
       text(sKey.key, sKey.posX, sKey.posY);
     });
 
-    if (transHeight < height - 70) {
+    if (transHeight < height - bitBoxSize * 1.2) {
       transHeight = transHeight + speedOffsetY;
       if (transRate > 0) {
         transRate = transRate - speedOffsetX;
@@ -175,7 +179,7 @@ function draw() {
       text(sKey.key, sKey.posX, sKey.posY);
 
       const bitKey = sKey.bitKey;
-      let rectYOffset = 150;
+      let rectYOffset = height / 5;
       for (i in bitKey) {
         stroke(255);
         if (bitKey[i] === "1") {
@@ -184,15 +188,27 @@ function draw() {
           fill(0);
         }
         strokeWeight(1);
-        rect(sKey.posX - 25, sKey.posY - rectYOffset, 50, 50, 5);
+        rect(
+          sKey.posX - 25,
+          sKey.posY - rectYOffset,
+          bitBoxSize,
+          bitBoxSize,
+          5
+        );
         console.log(i, sKey.playStep);
         if (i == sKey.playStep) {
           stroke(255);
           strokeWeight(4);
           noFill(0);
-          rect(sKey.posX - 30, sKey.posY - rectYOffset - 5, 60, 60, 5);
+          rect(
+            sKey.posX - 30,
+            sKey.posY - rectYOffset - 5,
+            bitBoxSize + bitBoxSize / 5,
+            bitBoxSize + bitBoxSize / 5,
+            5
+          );
         }
-        rectYOffset += 60;
+        rectYOffset += bitBoxSize + bitBoxSize / 5;
       }
     });
   }
@@ -254,7 +270,7 @@ function keyPressed() {
 
 function mousePressed() {
   if (transitionStep === 0) {
-    const testKeyword = "test2019keyword0429".split("");
+    const testKeyword = "test2019keyword".split("");
 
     for (i in testKeyword) {
       keyword.push(new SingleKey(testKeyword[i], i, 0, 0));
