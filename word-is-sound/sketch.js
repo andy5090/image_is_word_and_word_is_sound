@@ -36,42 +36,42 @@ class SingleKey {
       .charCodeAt(0)
       .toString(2)
       .split("");
-    this.osc = new p5.Oscillator();;
+    this.osc = new p5.Oscillator();
     this.interval = null;
     this.playStep = 0;
   }
 
   soundInit() {
-    let waveFreq = this.key.charCodeAt(0) * (this.index % 6 + 7);  
-    let reverbDecay = 3;  
-    switch(waveFreq % 7) {
+    let waveFreq = this.key.charCodeAt(0) * ((this.index % 6) + 7);
+    let reverbDecay = 3;
+    switch (waveFreq % 7) {
       case 0:
-      this.osc.setType('sine');
-      break;
+        this.osc.setType("sine");
+        break;
       case 1:
-      this.osc.setType('square');
-      waveFreq = waveFreq / 5;
-      reverbDecay = 2;
-      break;
+        this.osc.setType("square");
+        waveFreq = waveFreq / 5;
+        reverbDecay = 2;
+        break;
       case 3:
-      this.osc.setType('sine');
-      waveFreq = waveFreq / 3;
-      reverbDecay = 2;
-      break;
+        this.osc.setType("sine");
+        waveFreq = waveFreq / 3;
+        reverbDecay = 2;
+        break;
       case 4:
-      this.osc.setType('sawtooth');
-      waveFreq = waveFreq / 6;
-      reverbDecay = 1;
-      break;
+        this.osc.setType("sawtooth");
+        waveFreq = waveFreq / 6;
+        reverbDecay = 1;
+        break;
       case 5:
-      this.osc.setType('sine');
-      break;
+        this.osc.setType("sine");
+        break;
       case 6:
-      this.osc.setType('sine');
-      waveFreq = waveFreq / 4;
-      reverbDecay = 2;
-      break;
-    }    
+        this.osc.setType("sine");
+        waveFreq = waveFreq / 4;
+        reverbDecay = 2;
+        break;
+    }
     this.osc.freq(waveFreq);
     this.osc.amp(0);
     this.osc.start();
@@ -79,16 +79,16 @@ class SingleKey {
   }
 
   soundStart(totalKeys) {
-    const stepTime = this.key.charCodeAt(0) * (this.index % 6 + 7);  
+    const stepTime = this.key.charCodeAt(0) * (13 - (this.index % 6));
     const singleAmp = 0.3 / totalKeys;
     if (this.bitKey[this.playStep] === "1") {
       this.osc.amp(singleAmp);
     } else {
       this.osc.amp(0);
-    }    
+    }
     this.interval = setInterval(() => {
       this.playStep++;
-      if(this.playStep === 8) {
+      if (this.playStep === 8) {
         this.playStep = 0;
         this.bitKeyInvert();
       }
@@ -97,7 +97,7 @@ class SingleKey {
       } else {
         this.osc.amp(0);
       }
-    }, stepTime);    
+    }, stepTime);
   }
 
   soundStop() {
@@ -117,7 +117,7 @@ class SingleKey {
   bitKeyInvert() {
     let tempKey = [];
     this.bitKey.map(bit => {
-      if(bit === "1") {
+      if (bit === "1") {
         tempKey.push("0");
       } else {
         tempKey.push("1");
@@ -184,11 +184,11 @@ function draw() {
           fill(0);
         }
         strokeWeight(1);
-        rect(sKey.posX - 25, sKey.posY - rectYOffset, 50, 50, 5);       
+        rect(sKey.posX - 25, sKey.posY - rectYOffset, 50, 50, 5);
         console.log(i, sKey.playStep);
-        if(i == sKey.playStep) {          
-          stroke(255);          
-          strokeWeight(4);  
+        if (i == sKey.playStep) {
+          stroke(255);
+          strokeWeight(4);
           noFill(0);
           rect(sKey.posX - 30, sKey.posY - rectYOffset - 5, 60, 60, 5);
         }
@@ -198,28 +198,32 @@ function draw() {
   }
 }
 
+function reMapBits() {
+  keyword.map((sKey, index) => {
+    let tempBits = sKey.bitKey;
+
+    if (tempBits.length === 7) {
+      tempBits.push("1");
+    } else if (tempBits.length === 6) {
+      tempBits.push("0");
+      tempBits.push("0");
+    }
+
+    for (i = 0; i < index; i++) {
+      const firstBit = tempBits[0];
+      tempBits.shift();
+      tempBits.push(firstBit);
+    }
+
+    sKey.bitKeyUpdate(tempBits);
+  });
+}
+
 function keyPressed() {
   if (transitionStep === 0) {
     if (keyCode === RETURN && keyword !== "") {
       transitionStep = 1;
-      keyword.map((sKey, index) => {
-        let tempBits = sKey.bitKey;
-
-        if (tempBits.length === 7) {
-          tempBits.push("1");
-        } else if (tempBits.length === 6) {
-          tempBits.push("0");
-          tempBits.push("0");
-        }
-
-        for (i = 0; i < index; i++) {
-          const firstBit = tempBits[0];
-          tempBits.shift();
-          tempBits.push(firstBit);
-        }
-
-        sKey.bitKeyUpdate(tempBits);        
-      });
+      reMapBits();
     } else if (keyCode === ESCAPE) {
       keyword = [];
       keyIndex = 0;
@@ -245,5 +249,19 @@ function keyPressed() {
       transHeight = (height / 5) * 3;
       transRate = 1;
     }
+  }
+}
+
+function mousePressed() {
+  if (transitionStep === 0) {
+    const testKeyword = "test2019keyword0429".split("");
+
+    for (i in testKeyword) {
+      keyword.push(new SingleKey(testKeyword[i], i, 0, 0));
+      keyIndex = i;
+    }
+
+    transitionStep = 1;
+    reMapBits();
   }
 }
