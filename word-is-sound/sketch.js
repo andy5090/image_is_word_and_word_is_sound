@@ -14,8 +14,15 @@ let transRate;
 
 let reverb;
 
+let capture;
+let img4words;
+
 function setup() {
   createCanvas(windowWidth, windowHeight - 5);
+
+  capture = createCapture(VIDEO, ready);
+  capture.size(640, 360);
+  capture.hide();
 
   keyword = [];
   keyIndex = 0;
@@ -28,6 +35,10 @@ function setup() {
   bitBoxSize = height / 14;
 
   reverb = new p5.Reverb();
+}
+
+imageToWords() {
+  img4words = loadImage(capture);
 }
 
 class SingleKey {
@@ -83,7 +94,7 @@ class SingleKey {
   }
 
   soundStart(totalKeys) {
-    const stepTime = this.key.charCodeAt(0) * (13 - (this.index % 6));
+    const stepTime = (this.key.charCodeAt(0) * (13 - (this.index % 6))) / 1.5;
     const singleAmp = 0.3 / totalKeys;
     if (this.bitKey[this.playStep] === "1") {
       this.osc.amp(singleAmp);
@@ -195,14 +206,13 @@ function draw() {
           bitBoxSize,
           5
         );
-        console.log(i, sKey.playStep);
         if (i == sKey.playStep) {
           stroke(255);
           strokeWeight(4);
           noFill(0);
           rect(
-            sKey.posX - 30,
-            sKey.posY - rectYOffset - 5,
+            sKey.posX - bitBoxSize / 1.8,
+            sKey.posY - rectYOffset - bitBoxSize / 9.5,
             bitBoxSize + bitBoxSize / 5,
             bitBoxSize + bitBoxSize / 5,
             5
@@ -238,10 +248,10 @@ function reMapBits() {
 function keyPressed() {
   if (transitionStep === 0) {
     if (keyCode === RETURN && keyword !== "") {
-      transitionStep = 1;
       reMapBits();
+      transitionStep = 1;
     } else if (keyCode === ESCAPE) {
-      keyword = [];
+      keyword.length = 0;
       keyIndex = 0;
     } else if (keyCode >= 65 && keyCode <= 90) {
       keyword.push(new SingleKey(key, keyIndex, 0, 0));
@@ -276,8 +286,7 @@ function mousePressed() {
       keyword.push(new SingleKey(testKeyword[i], i, 0, 0));
       keyIndex = i;
     }
-
-    transitionStep = 1;
     reMapBits();
+    transitionStep = 1;
   }
 }
