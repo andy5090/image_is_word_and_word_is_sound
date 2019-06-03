@@ -21,7 +21,7 @@ function setup() {
   createCanvas(windowWidth, windowHeight - 5);
 
   capture = createCapture(VIDEO, ready);
-  capture.size(640, 360);
+  capture.size(16, 9);
   capture.hide();
 
   keyword = [];
@@ -37,8 +37,28 @@ function setup() {
   reverb = new p5.Reverb();
 }
 
-imageToWords() {
-  img4words = loadImage(capture);
+function imageToWords() {
+  img4words = capture;
+  img4words.loadPixels();
+
+  for (let i = 0; i < 16; i++) {
+    const pxColor = hue(
+      color(
+        img4words.pixels[i * 4 + 0],
+        img4words.pixels[i * 4 + 1],
+        img4words.pixels[i * 4 + 2]
+      )
+    );
+
+    const keyCode = floor(map(pxColor, 0, 255, 48, 90));
+
+    keyword.push(new SingleKey(String.fromCharCode(keyCode), keyIndex, 0, 0));
+    keyIndex++;
+  }
+}
+
+function ready() {
+  setTimeout(wordInit, 1000);
 }
 
 class SingleKey {
@@ -145,13 +165,16 @@ class SingleKey {
 function draw() {
   background(0);
 
+  rectMode(CENTER);
+
   const totalWords = keyword.length;
 
   if (transitionStep === 0) {
     fill(255);
     textSize(50);
     textAlign(CENTER);
-    text("Type your word", width / 2, (height / 5) * 2);
+
+    text("This is your word or image", width / 2, (height / 5) * 2);
 
     keyword.map((sKey, index) => {
       sKey.posChange(
@@ -199,20 +222,14 @@ function draw() {
           fill(0);
         }
         strokeWeight(1);
-        rect(
-          sKey.posX - 25,
-          sKey.posY - rectYOffset,
-          bitBoxSize,
-          bitBoxSize,
-          5
-        );
+        rect(sKey.posX, sKey.posY - rectYOffset, bitBoxSize, bitBoxSize, 5);
         if (i == sKey.playStep) {
           stroke(255);
           strokeWeight(4);
           noFill(0);
           rect(
-            sKey.posX - bitBoxSize / 1.8,
-            sKey.posY - rectYOffset - bitBoxSize / 9.5,
+            sKey.posX,
+            sKey.posY - rectYOffset,
             bitBoxSize + bitBoxSize / 5,
             bitBoxSize + bitBoxSize / 5,
             5
@@ -278,15 +295,13 @@ function keyPressed() {
   }
 }
 
-function mousePressed() {
+function wordInit() {
   if (transitionStep === 0) {
-    const testKeyword = "test2019keyword".split("");
+    imageToWords();
 
-    for (i in testKeyword) {
-      keyword.push(new SingleKey(testKeyword[i], i, 0, 0));
-      keyIndex = i;
-    }
-    reMapBits();
-    transitionStep = 1;
+    setTimeout(() => {
+      reMapBits();
+      transitionStep = 1;
+    }, 1000);
   }
 }
