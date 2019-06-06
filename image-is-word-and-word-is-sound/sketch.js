@@ -2,6 +2,7 @@ let keyword;
 let keyIndex;
 
 let bitBoxSize;
+let textSizeAlpha;
 
 let isSoundOFF;
 let transitionStep;
@@ -16,6 +17,8 @@ let reverb;
 
 let capture;
 let img4words;
+
+let fs;
 
 function setup() {
   createCanvas(windowWidth, windowHeight - 5);
@@ -33,6 +36,7 @@ function setup() {
   transRate = 1;
 
   bitBoxSize = height / 14;
+  textSizeAlpha = height / 1000;
 
   reverb = new p5.Reverb();
 }
@@ -171,7 +175,7 @@ function draw() {
 
   if (transitionStep === 0) {
     fill(255);
-    textSize(50);
+    textSize(50 * textSizeAlpha);
     textAlign(CENTER);
 
     text("This is your word or image", width / 2, (height / 5) * 2);
@@ -263,35 +267,20 @@ function reMapBits() {
 }
 
 function keyPressed() {
-  if (transitionStep === 0) {
-    if (keyCode === RETURN && keyword !== "") {
-      reMapBits();
-      transitionStep = 1;
-    } else if (keyCode === ESCAPE) {
-      keyword.length = 0;
-      keyIndex = 0;
-    } else if (keyCode >= 65 && keyCode <= 90) {
-      keyword.push(new SingleKey(key, keyIndex, 0, 0));
-      keyIndex++;
-      //letter
-    } else if (keyCode >= 48 && keyCode <= 57) {
-      keyword.push(new SingleKey(key, keyIndex, 0, 0));
-      keyIndex++;
-      //number
-    } else {
-      return false;
-    }
-  } else if (transitionStep === 2) {
-    if (keyCode === ESCAPE) {
-      transitionStep = 0;
-      keyword.map(sKey => {
-        sKey.soundStop();
-      });
-      keyword.length = 0;
-      keyIndex = 0;
-      transHeight = (height / 5) * 3;
-      transRate = 1;
-    }
+  if (keyCode === ESCAPE) {
+    transitionStep = 0;
+    keyword.map(sKey => {
+      sKey.soundStop();
+    });
+    keyword.length = 0;
+    keyIndex = 0;
+    transHeight = (height / 5) * 3;
+    transRate = 1;
+
+    setTimeout(wordInit, 1000);
+  } else if (key === "f" || key === "F") {
+    fs = fullscreen();
+    fullscreen(!fs);
   }
 }
 
@@ -304,4 +293,9 @@ function wordInit() {
       transitionStep = 1;
     }, 1000);
   }
+}
+
+function mouseClicked() {
+  fs = fullscreen();
+  fullscreen(!fs);
 }
