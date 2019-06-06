@@ -2,7 +2,7 @@ let keyword;
 let keyIndex;
 
 let bitBoxSize;
-let textSizeAlpha;
+let sizeAlpha;
 
 let isSoundOFF;
 let transitionStep;
@@ -36,7 +36,7 @@ function setup() {
   transRate = 1;
 
   bitBoxSize = height / 14;
-  textSizeAlpha = height / 1000;
+  sizeAlpha = height / 900;
 
   reverb = new p5.Reverb();
 }
@@ -175,7 +175,7 @@ function draw() {
 
   if (transitionStep === 0) {
     fill(255);
-    textSize(50 * textSizeAlpha);
+    textSize(50 * sizeAlpha);
     textAlign(CENTER);
 
     text("This is your word or image", width / 2, (height / 5) * 2);
@@ -217,7 +217,7 @@ function draw() {
       text(sKey.key, sKey.posX, sKey.posY);
 
       const bitKey = sKey.bitKey;
-      let rectYOffset = height / 5;
+      let rectYOffset = height / 6;
       for (i in bitKey) {
         stroke(255);
         if (bitKey[i] === "1") {
@@ -229,14 +229,14 @@ function draw() {
         rect(sKey.posX, sKey.posY - rectYOffset, bitBoxSize, bitBoxSize, 5);
         if (i == sKey.playStep) {
           stroke(255);
-          strokeWeight(4);
+          strokeWeight(4 * sizeAlpha);
           noFill(0);
           rect(
             sKey.posX,
             sKey.posY - rectYOffset,
             bitBoxSize + bitBoxSize / 5,
             bitBoxSize + bitBoxSize / 5,
-            5
+            5 * sizeAlpha
           );
         }
         rectYOffset += bitBoxSize + bitBoxSize / 5;
