@@ -6,6 +6,7 @@ let sizeAlpha;
 
 let isSoundOFF;
 let transitionStep;
+let numWordTotal;
 
 const speedOffsetY = 3;
 const speedOffsetX = 0.013;
@@ -37,6 +38,7 @@ function setup() {
 
   bitBoxSize = height / 14;
   sizeAlpha = height / 900;
+  numWordTotal = floor(width / 100);
 
   reverb = new p5.Reverb();
 }
@@ -45,7 +47,7 @@ function imageToWords() {
   img4words = capture;
   img4words.loadPixels();
 
-  for (let i = 0; i < 16; i++) {
+  for (let i = 0; i < numWordTotal; i++) {
     const pxColor = hue(
       color(
         img4words.pixels[i * 4 + 0],
@@ -262,7 +264,9 @@ function reMapBits() {
       tempBits.push("0");
     }
 
-    for (i = 0; i < index; i++) {
+    const shiftCnt = (index % 8) + floor(Math.random() * 2);
+
+    for (i = 0; i < shiftCnt; i++) {
       const firstBit = tempBits[0];
       tempBits.shift();
       tempBits.push(firstBit);
