@@ -226,7 +226,13 @@ function draw() {
           fill(0);
         }
         strokeWeight(1);
-        rect(sKey.posX, sKey.posY - rectYOffset, bitBoxSize, bitBoxSize, 5);
+        rect(
+          sKey.posX,
+          sKey.posY - rectYOffset,
+          bitBoxSize,
+          bitBoxSize,
+          5 * sizeAlpha
+        );
         if (i == sKey.playStep) {
           stroke(255);
           strokeWeight(4 * sizeAlpha);
