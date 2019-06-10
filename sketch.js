@@ -20,6 +20,8 @@ let capture;
 let img4words;
 
 let fs;
+let ar;
+let arInterval;
 
 function setup() {
   createCanvas(windowWidth, windowHeight - 5);
@@ -41,6 +43,8 @@ function setup() {
   numWordTotal = floor(width / 100);
 
   reverb = new p5.Reverb();
+
+  ar = false;
 }
 
 function imageToWords() {
@@ -180,7 +184,7 @@ function draw() {
     textSize(50 * sizeAlpha);
     textAlign(CENTER);
 
-    text("This is your word or image", width / 2, (height / 5) * 2);
+    text("This is your word of image", width / 2, (height / 5) * 2);
 
     keyword.map((sKey, index) => {
       sKey.posChange(
@@ -288,10 +292,30 @@ function keyPressed() {
     transRate = 1;
 
     setTimeout(wordInit, 1000);
+  } else if (key === "a" || key === "A") {
+    if (!ar) {
+      arInterval = setInterval(autoReset, 30000);
+      ar = true;
+    } else {
+      clearInterval(arInterval);
+    }
   } else if (key === "f" || key === "F") {
     fs = fullscreen();
     fullscreen(!fs);
   }
+}
+
+function autoReset() {
+  transitionStep = 0;
+  keyword.map(sKey => {
+    sKey.soundStop();
+  });
+  keyword.length = 0;
+  keyIndex = 0;
+  transHeight = (height / 5) * 3;
+  transRate = 1;
+
+  setTimeout(wordInit, 1000);
 }
 
 function wordInit() {
